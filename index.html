@@ -1,42 +1,191 @@
-async function changeName() {
-    const token = document.getElementById('token').value.trim();
-    const newName = document.getElementById('username').value.trim();
-    const outputDiv = document.getElementById('output');
-
-    if (!token || !newName) {
-        showStatus("Error: Please fill in both fields!", "#ff4444");
-        return;
-    }
-
-    localStorage.setItem('last_playfab_token', token);
-    showStatus("Sending data to Vercel Serverless Backend...", "#ffe600");
-
-    try {
-        // Correct relative path routing straight to your serverless backend
-        const response = await fetch("/api/change-name", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                token: token,
-                username: newName
-            })
-        });
-
-        const data = await response.json();
-        outputDiv.style.display = "block";
-        outputDiv.textContent = JSON.stringify(data, null, 2);
-
-        if (response.ok && data.code === 200) {
-            outputDiv.style.borderLeftColor = "#00adb5";
-            alert("Username successfully updated!");
-        } else {
-            outputDiv.style.borderLeftColor = "#ff4444";
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bwah Tools</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #121212;
+            color: #e0e0e0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
         }
-    } catch (error) {
-        outputDiv.style.display = "block";
-        outputDiv.style.borderLeftColor = "#ff4444";
-        outputDiv.textContent = "Error connecting to backend: " + error.message;
+        .container {
+            background-color: #1e1e1e;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            width: 100%;
+            max-width: 500px;
+        }
+        h1 {
+            color: #00adb5;
+            text-align: center;
+            margin-bottom: 25px;
+            margin-top: 0;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            font-size: 14px;
+            color: #b0b0b0;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            background-color: #2d2d2d;
+            border: 1px solid #444;
+            border-radius: 4px;
+            color: #fff;
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+        input[type="text"]:focus {
+            border-color: #00adb5;
+            outline: none;
+        }
+        .btn-row {
+            display: flex;
+            gap: 10px;
+            margin-top: 8px;
+        }
+        button {
+            background-color: #00adb5;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            width: 100%;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+        button:hover {
+            background-color: #007a80;
+        }
+        button.secondary {
+            background-color: #393e46;
+            color: #eee;
+        }
+        button.secondary:hover {
+            background-color: #222831;
+        }
+        #output {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #252525;
+            border-left: 4px solid #444;
+            border-radius: 4px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            font-size: 13px;
+            display: none;
+            word-break: break-all;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Bwah Tools</h1>
+    
+    <div class="form-group">
+        <label for="token">Bearer Token (X-Authorization):</label>
+        <input type="text" id="token" placeholder="Paste your token here...">
+        <div class="btn-row">
+            <button class="secondary" id="btnLastToken" onclick="loadLastToken()">Insert Last Token</button>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label for="username">New Game Username:</label>
+        <input type="text" id="username" placeholder="e.g., shoeman" value="shoeman">
+    </div>
+
+    <button onclick="changeName()">Change Name</button>
+
+    <div id="output"></div>
+</div>
+
+<script>
+    // Load last token memory status when the page starts up
+    window.onload = function() {
+        const lastToken = localStorage.getItem('last_playfab_token');
+        if (!lastToken) {
+            document.getElementById('btnLastToken').style.opacity = "0.5";
+            document.getElementById('btnLastToken').innerText = "No Token Saved Yet";
+        }
+    };
+
+    function loadLastToken() {
+        const savedToken = localStorage.getItem('last_playfab_token');
+        if (savedToken) {
+            document.getElementById('token').value = savedToken;
+            showStatus("Loaded token from browser memory!", "#00adb5");
+        } else {
+            showStatus("No token found in memory. Execute a swap manually first!", "#ff4444");
+        }
     }
-}
+
+    function showStatus(text, color) {
+        const outputDiv = document.getElementById('output');
+        outputDiv.style.display = "block";
+        outputDiv.style.borderLeftColor = color;
+        outputDiv.textContent = text;
+    }
+
+    // Your exact fixed function integrated cleanly
+    async function changeName() { 
+        const token = document.getElementById('token').value.trim(); 
+        const newName = document.getElementById('username').value.trim(); 
+        const outputDiv = document.getElementById('output'); 
+        
+        if (!token || !newName) { 
+            showStatus("Error: Please fill in both fields!", "#ff4444"); 
+            return; 
+        } 
+        
+        localStorage.setItem('last_playfab_token', token); 
+        showStatus("Sending data to Vercel Serverless Backend...", "#ffe600"); 
+        
+        try { 
+            // Correct relative path routing straight to your serverless backend
+            const response = await fetch("/api/change-name", { 
+                method: "POST", 
+                headers: { 
+                    "Content-Type": "application/json" 
+                }, 
+                body: JSON.stringify({ token: token, username: newName }) 
+            }); 
+            
+            const data = await response.json(); 
+            outputDiv.style.display = "block"; 
+            outputDiv.textContent = JSON.stringify(data, null, 2); 
+            
+            if (response.ok && data.code === 200) { 
+                outputDiv.style.borderLeftColor = "#00adb5"; 
+                alert("Username successfully updated!"); 
+            } else { 
+                outputDiv.style.borderLeftColor = "#ff4444"; 
+            } 
+        } catch (error) { 
+            outputDiv.style.display = "block"; 
+            outputDiv.style.borderLeftColor = "#ff4444"; 
+            outputDiv.textContent = "Error connecting to backend: " + error.message; 
+        } 
+    }
+</script>
+
+</body>
+</html>
