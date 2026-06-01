@@ -1,0 +1,11 @@
+// Change your fetch line inside index.html to look like this:
+const response = await fetch("/api/change-name", {
+    method: "POST",
+    headers: {
+        "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+        token: token,
+        username: newName
+    })
+});
