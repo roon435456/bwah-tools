@@ -1,11 +1,42 @@
-// Change your fetch line inside index.html to look like this:
-const response = await fetch("/api/change-name", {
-    method: "POST",
-    headers: {
-        "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-        token: token,
-        username: newName
-    })
-});
+async function changeName() {
+    const token = document.getElementById('token').value.trim();
+    const newName = document.getElementById('username').value.trim();
+    const outputDiv = document.getElementById('output');
+
+    if (!token || !newName) {
+        showStatus("Error: Please fill in both fields!", "#ff4444");
+        return;
+    }
+
+    localStorage.setItem('last_playfab_token', token);
+    showStatus("Sending data to Vercel Serverless Backend...", "#ffe600");
+
+    try {
+        // Correct relative path routing straight to your serverless backend
+        const response = await fetch("/api/change-name", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                token: token,
+                username: newName
+            })
+        });
+
+        const data = await response.json();
+        outputDiv.style.display = "block";
+        outputDiv.textContent = JSON.stringify(data, null, 2);
+
+        if (response.ok && data.code === 200) {
+            outputDiv.style.borderLeftColor = "#00adb5";
+            alert("Username successfully updated!");
+        } else {
+            outputDiv.style.borderLeftColor = "#ff4444";
+        }
+    } catch (error) {
+        outputDiv.style.display = "block";
+        outputDiv.style.borderLeftColor = "#ff4444";
+        outputDiv.textContent = "Error connecting to backend: " + error.message;
+    }
+}
