@@ -5,7 +5,6 @@ import requests
 
 app = FastAPI()
 
-# Enable CORS for cross-domain requests on Vercel deployment
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
